@@ -1,7 +1,6 @@
 #include <chunx/FixedSizeChunker.h>
 #include <chunx/OutputStream.h>
 #include <gtest/gtest.h>
-#include <iterator>
 
 namespace chunx
 {

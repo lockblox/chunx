@@ -31,7 +31,7 @@ public:
     OutputStream& operator=(const OutputStream&) = delete;
 
 private:
-    int_type overflow(traits_type::int_type ch = traits_type::eof()) override;
+    int_type overflow(traits_type::int_type ch) override;
     int sync() override;
     OutputIterator it_;
     Chunker chunker_;
@@ -68,7 +68,7 @@ OutputStream<Chunker, OutputIterator>::overflow(traits_type::int_type c)
     if (pbase() != &(*begin))
     { // first call
         auto end = write_buffer_.cend();
-        setp(const_cast<char*>(&(*begin)), const_cast<char*>(&(*end)));
+        setp(&(*begin), const_cast<char*>(&(*end)));
     }
     sync();
     *pptr() = c; // write the overflow character to the new write pointer
@@ -94,7 +94,7 @@ int OutputStream<Chunker, OutputIterator>::sync()
     }
     auto begin = write_buffer_.begin();
     auto end = write_buffer_.end();
-    setp(const_cast<char*>(&(*begin)), const_cast<char*>(&(*end)));
+    setp(&(*begin), &(*end));
     return 0;
 }
 

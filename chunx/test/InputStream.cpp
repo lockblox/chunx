@@ -1,6 +1,5 @@
 #include <chunx/InputStream.h>
 #include <gtest/gtest.h>
-#include <iterator>
 
 namespace chunx
 {
