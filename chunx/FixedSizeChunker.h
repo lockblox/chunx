@@ -1,12 +1,13 @@
 #pragma once
 #include <experimental/string_view>
+#include <boost/utility/string_ref.hpp>
 #include <memory>
 #include <vector>
 
 namespace chunx
 {
 
-using string_view = std::experimental::fundamentals_v1::string_view;
+using string_view = boost::string_ref;
 
 class FixedSizeChunker
 {

@@ -4,7 +4,7 @@
 
 TEST(Chunker, FixedSizeChunker)
 {
-    using string_view = std::experimental::fundamentals_v1::string_view;
+    using string_view = chunx::string_view;
     auto input = std::string("123456789");
     {
         auto chunker = chunx::FixedSizeChunker(2);
