@@ -1,5 +1,5 @@
 #include <chunx/FixedSizeChunker.h>
-#include <chunx/OutputStream.h>
+#include <chunx/OutputStreamBuffer.h>
 #include <gtest/gtest.h>
 
 namespace chunx
@@ -10,7 +10,7 @@ TEST(Chunx, OutputStream)
     using Container = std::set<std::string>;
     using Chunker = FixedSizeChunker;
     using Inserter = std::insert_iterator<Container>;
-    using Stream = OutputStream<Chunker, Inserter>;
+    using Stream = OutputStreamBuffer<Chunker, Inserter>;
     auto chunker = Chunker(4);
     auto container = Container{};
     auto inserter = Inserter(container, container.end());

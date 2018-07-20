@@ -19,16 +19,20 @@ namespace chunx
 {
 
 template <typename Chunker, typename OutputIterator>
-class OutputStream : public std::streambuf
+class OutputStreamBuffer : public std::streambuf
 {
 public:
-    explicit OutputStream(OutputIterator it,
-                          Chunker = Chunker(),
-                          std::size_t buffer_size = 256);
-    OutputStream(OutputStream&&) = default;
-    OutputStream& operator=(OutputStream&&) = default;
-    OutputStream(const OutputStream&) = delete;
-    OutputStream& operator=(const OutputStream&) = delete;
+    explicit OutputStreamBuffer(OutputIterator it,
+                                Chunker = Chunker(),
+                                std::size_t buffer_size = 256);
+
+    OutputStreamBuffer(OutputStreamBuffer&&) = default;
+
+    OutputStreamBuffer& operator=(OutputStreamBuffer&&) = default;
+
+    OutputStreamBuffer(const OutputStreamBuffer&) = delete;
+
+    OutputStreamBuffer& operator=(const OutputStreamBuffer&) = delete;
 
 private:
     int_type overflow(traits_type::int_type ch) override;
@@ -40,9 +44,10 @@ private:
 
 // IMPLEMENTATION
 template <typename Chunker, typename OutputIterator>
-OutputStream<Chunker, OutputIterator>::OutputStream(OutputIterator it,
-                                                    Chunker chunker,
-                                                    std::size_t buffer_size)
+OutputStreamBuffer<Chunker, OutputIterator>::OutputStreamBuffer(
+    OutputIterator it,
+    Chunker chunker,
+    std::size_t buffer_size)
     : it_(std::move(it)), chunker_(std::move(chunker)),
       write_buffer_(buffer_size)
 {
@@ -52,8 +57,8 @@ OutputStream<Chunker, OutputIterator>::OutputStream(OutputIterator it,
 }
 
 template <typename Chunker, typename OutputIterator>
-typename OutputStream<Chunker, OutputIterator>::traits_type::int_type
-OutputStream<Chunker, OutputIterator>::overflow(traits_type::int_type c)
+typename OutputStreamBuffer<Chunker, OutputIterator>::traits_type::int_type
+OutputStreamBuffer<Chunker, OutputIterator>::overflow(traits_type::int_type c)
 {                         // wrote to end of buffer so need to transfer
                           // bytes into node and clear
     if (pptr() < epptr()) // space remaining in write buffer
@@ -78,7 +83,7 @@ OutputStream<Chunker, OutputIterator>::overflow(traits_type::int_type c)
 }
 
 template <typename Chunker, typename OutputIterator>
-int OutputStream<Chunker, OutputIterator>::sync()
+int OutputStreamBuffer<Chunker, OutputIterator>::sync()
 {
     auto chunks = chunker_(string_view(pbase(), pptr() - pbase()));
     auto last_begin = pbase();

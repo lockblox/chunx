@@ -28,21 +28,24 @@ namespace chunx
 /** A streambuf interface for streaming chunked data into/out-of Storage
  */
 template <typename InputIterator>
-class InputStream : public std::streambuf
+class InputStreamBuffer : public std::streambuf
 {
 public:
     /**@brief Create a InputStream
      * @param buffer_size Size of buffer in bytes
      * @param read_size Number of already read bytes to keep */
-    explicit InputStream(InputIterator begin,
-                         InputIterator end,
-                         std::size_t buffer_size = 256,
-                         std::size_t read_size = 8);
+    explicit InputStreamBuffer(InputIterator begin,
+                               InputIterator end,
+                               std::size_t buffer_size = 256,
+                               std::size_t read_size = 8);
 
-    InputStream(InputStream&&) = default;
-    InputStream& operator=(InputStream&&) = default;
-    InputStream(const InputStream&) = delete;
-    InputStream& operator=(const InputStream&) = delete;
+    InputStreamBuffer(InputStreamBuffer&&) = default;
+
+    InputStreamBuffer& operator=(InputStreamBuffer&&) = default;
+
+    InputStreamBuffer(const InputStreamBuffer&) = delete;
+
+    InputStreamBuffer& operator=(const InputStreamBuffer&) = delete;
 
 private:
     int_type underflow() override; /**< Called when more data needed */
@@ -73,10 +76,10 @@ private:
 // IMPLEMENTATION
 
 template <typename InputIterator>
-InputStream<InputIterator>::InputStream(InputIterator begin,
-                                        InputIterator end,
-                                        std::size_t buffer_size,
-                                        std::size_t read_size)
+InputStreamBuffer<InputIterator>::InputStreamBuffer(InputIterator begin,
+                                                    InputIterator end,
+                                                    std::size_t buffer_size,
+                                                    std::size_t read_size)
     : begin_(std::move(begin)), end_(std::move(end)), it_(begin_),
       read_size_(std::max(read_size, size_t(1))), // 1 byte minimum
       buffer_size_(buffer_size)
@@ -90,7 +93,7 @@ InputStream<InputIterator>::InputStream(InputIterator begin,
 }
 
 template <typename InputIterator>
-size_t InputStream<InputIterator>::refill_put_back_area()
+size_t InputStreamBuffer<InputIterator>::refill_put_back_area()
 {
     auto read_begin = read_buffer_.cend();
     std::advance(read_begin, -read_size_); // beginning of region to copy
@@ -99,8 +102,8 @@ size_t InputStream<InputIterator>::refill_put_back_area()
 }
 
 template <typename InputIterator>
-size_t InputStream<InputIterator>::read_data(
-    typename InputStream<InputIterator>::DataIterator output)
+size_t InputStreamBuffer<InputIterator>::read_data(
+    typename InputStreamBuffer<InputIterator>::DataIterator output)
 {
     auto bytes_left = std::distance(read_it_, it_->cend());
     auto bytes_read = std::distance(output, read_buffer_.cend());
@@ -115,7 +118,7 @@ size_t InputStream<InputIterator>::read_data(
 }
 
 template <typename InputIterator>
-std::streambuf::int_type InputStream<InputIterator>::underflow()
+std::streambuf::int_type InputStreamBuffer<InputIterator>::underflow()
 {
     if (gptr() < egptr()) // unread data remaining in buffer
     {
@@ -171,9 +174,9 @@ std::streambuf::int_type InputStream<InputIterator>::underflow()
 
 template <typename InputIterator>
 std::streambuf::pos_type
-InputStream<InputIterator>::seekoff(std::streambuf::off_type off,
-                                    std::ios_base::seekdir dir,
-                                    std::ios_base::openmode which)
+InputStreamBuffer<InputIterator>::seekoff(std::streambuf::off_type off,
+                                          std::ios_base::seekdir dir,
+                                          std::ios_base::openmode which)
 {
     if (begin_ == end_)
     {
@@ -233,8 +236,8 @@ InputStream<InputIterator>::seekoff(std::streambuf::off_type off,
 
 template <typename InputIterator>
 std::streambuf::pos_type
-InputStream<InputIterator>::seekpos(std::streambuf::pos_type pos,
-                                    std::ios_base::openmode which)
+InputStreamBuffer<InputIterator>::seekpos(std::streambuf::pos_type pos,
+                                          std::ios_base::openmode which)
 {
     (void)pos;
     (void)which;

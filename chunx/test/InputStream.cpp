@@ -1,4 +1,4 @@
-#include <chunx/InputStream.h>
+#include <chunx/InputStreamBuffer.h>
 #include <gtest/gtest.h>
 
 namespace chunx
@@ -8,7 +8,7 @@ TEST(Chunx, InputStream)
 {
     using Container = std::set<std::string>;
     using Iterator = Container::const_iterator;
-    using Stream = InputStream<Iterator>;
+    using Stream = InputStreamBuffer<Iterator>;
     auto container = Container{"abcd", "efgh", "ijkl", "m"};
     auto stream = Stream(container.cbegin(), container.cend());
     std::istream strbuf(&stream);

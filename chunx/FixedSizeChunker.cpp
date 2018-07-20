@@ -1,4 +1,4 @@
-#include "FixedSizeChunker.h"
+#include <chunx/FixedSizeChunker.h>
 #include <cmath>
 
 namespace chunx

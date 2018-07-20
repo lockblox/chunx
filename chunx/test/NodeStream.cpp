@@ -1,4 +1,4 @@
-#include <chunx/InputStream.h>
+#include <chunx/InputStreamBuffer.h>
 #include <gtest/gtest.h>
 
 namespace chunx

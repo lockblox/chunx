@@ -14,13 +14,13 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_library(libchunx
         chunx/FixedSizeChunker.cpp chunx/FixedSizeChunker.h
-        chunx/OutputStream.cpp chunx/OutputStream.h
-        chunx/InputStream.cpp chunx/InputStream.h)
+        chunx/OutputStreamBuffer.cpp chunx/OutputStreamBuffer.h
+        chunx/InputStreamBuffer.cpp chunx/InputStreamBuffer.h)
 set_target_properties(libchunx PROPERTIES OUTPUT_NAME chunx)
 
 add_subdirectory(external/gtest)
 
-target_include_directories(libchunx INTERFACE "${chunx_SOURCE_DIR}")
+target_include_directories(libchunx PUBLIC "${chunx_SOURCE_DIR}")
 
 install(TARGETS libchunx
         LIBRARY DESTINATION lib
