@@ -22,7 +22,7 @@ template <typename Chunker, typename OutputIterator>
 class OutputStreamBuffer : public std::streambuf
 {
 public:
-    explicit OutputStreamBuffer(OutputIterator it,
+    explicit OutputStreamBuffer(OutputIterator it = OutputIterator(),
                                 Chunker = Chunker(),
                                 std::size_t buffer_size = 256);
 

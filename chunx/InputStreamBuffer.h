@@ -34,8 +34,8 @@ public:
     /**@brief Create a InputStream
      * @param buffer_size Size of buffer in bytes
      * @param read_size Number of already read bytes to keep */
-    explicit InputStreamBuffer(InputIterator begin,
-                               InputIterator end,
+    explicit InputStreamBuffer(InputIterator begin = InputIterator(),
+                               InputIterator end = InputIterator(),
                                std::size_t buffer_size = 256,
                                std::size_t read_size = 8);
 
