@@ -88,7 +88,8 @@ InputStreamBuffer<InputIterator>::InputStreamBuffer(InputIterator begin,
     read_buffer_.resize(std::max(buffer_size, read_size_) +
                         std::max(read_size, size_t(1)));
     // initialise all pointers to end to indicate that the buffer is empty
-    auto read_end = &read_buffer_.front() + read_buffer_.size();
+    auto read_end = const_cast<char*>(&read_buffer_.front())
+        + read_buffer_.size();
     setg(read_end, read_end, read_end);
 }
 
