@@ -18,7 +18,9 @@ add_library(libchunx
         chunx/InputStreamBuffer.cpp chunx/InputStreamBuffer.h)
 set_target_properties(libchunx PROPERTIES OUTPUT_NAME chunx)
 
-add_subdirectory(external/gtest)
+if (NOT TARGET gtest)
+    add_subdirectory(external/googletest)
+endif()
 
 target_include_directories(libchunx PUBLIC "${chunx_SOURCE_DIR}")
 
@@ -31,20 +33,14 @@ install(DIRECTORY chunx DESTINATION include
         PATTERN "chunx/test/*" EXCLUDE
         PATTERN "chunx/test" EXCLUDE)
 
-SET(GTEST_LIBRARIES gtest)
-if (${CMAKE_BUILD_TYPE} MATCHES Debug)
-    SET(GTEST_LIBRARIES gtestd)
-endif ()
-
 enable_testing()
 add_executable(TestChunx
         chunx/test/main.cpp
         chunx/test/FixedSizeChunker.cpp
         chunx/test/OutputStream.cpp
         chunx/test/InputStream.cpp)
-add_dependencies(TestChunx googletest)
 
-target_link_libraries(TestChunx ${GTEST_LIBRARIES} libchunx)
+target_link_libraries(TestChunx gtest libchunx)
 set_target_properties(TestChunx PROPERTIES RUNTIME_OUTPUT_DIRECTORY
                       ${CMAKE_CURRENT_BINARY_DIR}/test)
 add_test(NAME TestChunx
