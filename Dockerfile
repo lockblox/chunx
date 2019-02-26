@@ -1,1 +1,1 @@
-FROM campx/orthodox:latest
+FROM lockblox/orthodox:latest
