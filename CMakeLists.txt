@@ -1,28 +1,31 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.10)
 
-project(chunx LANGUAGES CXX)
+project(chunx VERSION 1.0 LANGUAGES CXX)
+
 set(CMAKE_VERBOSE_MAKEFILE ON)
-set(Boost_USE_STATIC_LIBS ON)
-find_library(Boost REQUIRED COMPONENTS utility)
-include_directories(${CMAKE_BINARY_DIR}/include)
-link_directories(${CMAKE_BINARY_DIR}/lib)
-link_directories(${Boost_LIBRARY_DIRS})
-include_directories(${Boost_INCLUDE_DIRS})
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wextra -Werror")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_STANDARD 17)
+
+option(BUILD_TESTING "Build unit tests" ON)
+
+find_package(Boost REQUIRED)
 
 add_library(libchunx
-        chunx/FixedSizeChunker.cpp chunx/FixedSizeChunker.h
-        chunx/OutputStreamBuffer.cpp chunx/OutputStreamBuffer.h
-        chunx/InputStreamBuffer.cpp chunx/InputStreamBuffer.h)
+        chunx/length_predicate.cpp
+        chunx/length_predicate.h
+        #chunx/OutputStreamBuffer.cpp
+        #chunx/OutputStreamBuffer.h
+        #chunx/InputStreamBuffer.cpp
+        #chunx/InputStreamBuffer.h
+        chunx/partition_copy.cpp
+        chunx/partition_copy.h)
+
 set_target_properties(libchunx PROPERTIES OUTPUT_NAME chunx)
 
-if (NOT TARGET gtest)
-    add_subdirectory(external/googletest)
-endif()
-
-target_include_directories(libchunx PUBLIC "${chunx_SOURCE_DIR}")
+target_include_directories(libchunx PUBLIC
+        $<BUILD_INTERFACE:${chunx_SOURCE_DIR}>
+        $<BUILD_INTERFACE:${Boost_INCLUDE_DIRS}>
+        $<INSTALL_INTERFACE:include>)
 
 install(TARGETS libchunx
         LIBRARY DESTINATION lib
@@ -33,16 +36,20 @@ install(DIRECTORY chunx DESTINATION include
         PATTERN "chunx/test/*" EXCLUDE
         PATTERN "chunx/test" EXCLUDE)
 
-enable_testing()
-add_executable(TestChunx
-        chunx/test/main.cpp
-        chunx/test/FixedSizeChunker.cpp
-        chunx/test/OutputStream.cpp
-        chunx/test/InputStream.cpp)
-
-target_link_libraries(TestChunx gtest libchunx)
-set_target_properties(TestChunx PROPERTIES RUNTIME_OUTPUT_DIRECTORY
-                      ${CMAKE_CURRENT_BINARY_DIR}/test)
-add_test(NAME TestChunx
-         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/test
-         COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test/TestChunx)
+if (BUILD_TESTING)
+    enable_testing()
+    find_package(GTest MODULE REQUIRED)
+    add_executable(ChunxTest
+            chunx/test/main.cpp
+            chunx/test/length_predicate_test.cpp
+            #chunx/test/OutputStream.cpp
+            #chunx/test/InputStream.cpp)
+            )
+    target_link_libraries(ChunxTest PRIVATE GTest::GTest GTest::Main libchunx)
+    gtest_discover_tests(ChunxTest)
+    if (MSVC)
+        target_compile_options(ChunxTest PRIVATE /W4 /WX /MP)
+    else ()
+        target_compile_options(ChunxTest PRIVATE -Wall -Wextra -pedantic -Werror)
+    endif ()
+endif ()
