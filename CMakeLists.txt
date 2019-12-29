@@ -17,8 +17,8 @@ add_library(libchunx
         #chunx/OutputStreamBuffer.h
         #chunx/InputStreamBuffer.cpp
         #chunx/InputStreamBuffer.h
-        chunx/partition_copy.cpp
-        chunx/partition_copy.h)
+        chunx/chunk_if.cpp
+        chunx/chunk_if.h)
 
 set_target_properties(libchunx PROPERTIES OUTPUT_NAME chunx)
 

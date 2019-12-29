@@ -1,5 +1,5 @@
+#include <chunx/chunk_if.h>
 #include <chunx/length_predicate.h>
-#include <chunx/partition_copy.h>
 #include <gtest/gtest.h>
 
 #include <algorithm>
@@ -14,8 +14,8 @@ TEST_P(length_predicate_test, length_predicate) {
   auto [input, length, expected] = GetParam();
   chunx::length_predicate predicate;
   auto results = std::vector<std::string>{};
-  chunx::partition_copy(input.begin(), input.end(), std::back_inserter(results),
-                        predicate.length(length));
+  chunx::chunk_if(input.begin(), input.end(), std::back_inserter(results),
+                  predicate.length(length));
   EXPECT_EQ(expected, results);
 }
 
@@ -24,8 +24,8 @@ TEST(length_predicate_test, string_view) {
   auto input = std::vector<int>{1, 2, 3, 4, 5, 6};
   auto predicate = chunx::length_predicate{4};
   auto results = std::vector<string_view>{};
-  chunx::partition_copy(input.begin(), input.end(), std::back_inserter(results),
-                        predicate);
+  chunx::chunk_if(input.begin(), input.end(), std::back_inserter(results),
+                  predicate);
   auto expected = std::vector<string_view>{string_view{input.data(), 4},
                                            string_view{input.data() + 4, 2}};
   EXPECT_EQ(expected, results);

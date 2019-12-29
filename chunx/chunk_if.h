@@ -10,12 +10,13 @@ namespace chunx {
 
 /** Copies an input range into a sequence of chunks for which a predicate is
  * true */
-template <typename InputIt, typename OutputIt, typename UnaryPredicate>
-OutputIt partition_copy(InputIt first, InputIt last, OutputIt d_first,
-                        UnaryPredicate p) {
+template <typename InputIt, typename OutputIt, typename UnaryFunction>
+OutputIt chunk_if(InputIt first, InputIt last, OutputIt d_first,
+                  UnaryFunction p) {
   using input_type = typename std::iterator_traits<InputIt>::value_type;
   using input_tag = typename std::iterator_traits<InputIt>::iterator_category;
   using view_type = typename std::basic_string_view<input_type>;
+  // TODO use trait class to determine output type
   using output_type = typename OutputIt::container_type::value_type;
   using pointer = std::add_pointer_t<input_type>;
   using size_type = typename output_type::size_type;
@@ -33,7 +34,7 @@ OutputIt partition_copy(InputIt first, InputIt last, OutputIt d_first,
       auto size = static_cast<size_type>(std::distance(begin, end));
       buffer = view_type{&(*begin), size + 1};
     } else {
-      buffer.push_back(*it);
+      buffer.insert(buffer.end(), *it);
     }
     if (p(buffer)) {
       *d_first++ = buffer;
