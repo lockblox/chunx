@@ -25,19 +25,10 @@ class length_predicate {
     return chunk_size > 0;
   }
 
-  /** Determines whether the input is a chunk */
-  template <typename T>
-  bool operator()(const T& input);
-
   void reset() {}
 
  private:
   std::size_t size_;
 };
-
-template <typename T>
-bool length_predicate::operator()(const T& input) {
-  return length() == input.length();
-}
 
 }  // namespace chunx

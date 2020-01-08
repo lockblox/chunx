@@ -17,8 +17,6 @@ add_library(libchunx
         #chunx/OutputStreamBuffer.h
         #chunx/InputStreamBuffer.cpp
         #chunx/InputStreamBuffer.h
-        chunx/chunk_if.cpp
-        chunx/chunk_if.h
         chunx/detail/join_iterator.cpp
         chunx/detail/join_iterator.h
         chunx/join_range.cpp

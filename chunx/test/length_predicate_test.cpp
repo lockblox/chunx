@@ -1,4 +1,3 @@
-#include <chunx/chunk_if.h>
 #include <chunx/detail/join_iterator.h>
 #include <chunx/join_range.h>
 #include <chunx/length_predicate.h>
@@ -17,8 +16,9 @@ TEST_P(length_predicate_test, length_predicate) {
   auto [input, length, expected] = GetParam();
   chunx::length_predicate predicate;
   auto results = std::vector<std::string>{};
-  chunx::chunk_if(input.begin(), input.end(), std::back_inserter(results),
-                  predicate.length(length));
+  auto tokenizer =
+      boost::tokenizer{input.begin(), input.end(), predicate.length(length)};
+  std::copy(tokenizer.begin(), tokenizer.end(), std::back_inserter(results));
   EXPECT_EQ(expected, results);
 }
 
@@ -27,12 +27,8 @@ TEST(length_predicate_test, string_view) {
   auto input = std::vector<int>{1, 2, 3, 4, 5, 6};
   auto predicate = chunx::length_predicate{4};
   auto results = std::vector<string_view>{};
-  chunx::chunk_if(input.begin(), input.end(), std::back_inserter(results),
-                  predicate);
   auto expected = std::vector<string_view>{string_view{input.data(), 4},
                                            string_view{input.data() + 4, 2}};
-  EXPECT_EQ(expected, results);
-  results.clear();
   using tokenizer_type =
       boost::tokenizer<chunx::length_predicate, std::vector<int>::iterator,
                        std::basic_string_view<int>>;
