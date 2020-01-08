@@ -18,7 +18,11 @@ add_library(libchunx
         #chunx/InputStreamBuffer.cpp
         #chunx/InputStreamBuffer.h
         chunx/chunk_if.cpp
-        chunx/chunk_if.h chunx/detail/join_iterator.cpp chunx/detail/join_iterator.h chunx/join_range.cpp chunx/join_range.h)
+        chunx/chunk_if.h
+        chunx/detail/join_iterator.cpp
+        chunx/detail/join_iterator.h
+        chunx/join_range.cpp
+        chunx/join_range.h)
 
 set_target_properties(libchunx PROPERTIES OUTPUT_NAME chunx)
 
@@ -26,15 +30,6 @@ target_include_directories(libchunx PUBLIC
         $<BUILD_INTERFACE:${chunx_SOURCE_DIR}>
         $<BUILD_INTERFACE:${Boost_INCLUDE_DIRS}>
         $<INSTALL_INTERFACE:include>)
-
-install(TARGETS libchunx
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        RUNTIME DESTINATION bin)
-install(DIRECTORY chunx DESTINATION include
-        FILES_MATCHING PATTERN "*.h"
-        PATTERN "chunx/test/*" EXCLUDE
-        PATTERN "chunx/test" EXCLUDE)
 
 if (MSVC)
     target_compile_options(libchunx PRIVATE /W4 /WX /MP)
@@ -73,20 +68,11 @@ install(TARGETS libchunx
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)
-install(FILES
-        chunx/bijective/function.h
-        chunx/bijective/map.h
-        chunx/bijective/pair.h
-        chunx/bijective/stream.h
-        DESTINATION include/chunx/bijective)
-install(FILES
-        chunx/client.h
-        chunx/map.h
-        DESTINATION include/chunx)
-install(FILES
-        chunx/clients/lmdb.h
-        chunx/clients/map.h
-        DESTINATION include/chunx/clients)
+
+install(DIRECTORY chunx DESTINATION include
+        FILES_MATCHING PATTERN "*.h"
+        PATTERN "chunx/test/*" EXCLUDE
+        PATTERN "chunx/test" EXCLUDE)
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
