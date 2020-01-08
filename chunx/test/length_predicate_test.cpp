@@ -1,8 +1,11 @@
 #include <chunx/chunk_if.h>
+#include <chunx/detail/join_iterator.h>
+#include <chunx/join_range.h>
 #include <chunx/length_predicate.h>
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <boost/tokenizer.hpp>
 
 using namespace std::string_literals;
 
@@ -29,6 +32,15 @@ TEST(length_predicate_test, string_view) {
   auto expected = std::vector<string_view>{string_view{input.data(), 4},
                                            string_view{input.data() + 4, 2}};
   EXPECT_EQ(expected, results);
+  results.clear();
+  using tokenizer_type =
+      boost::tokenizer<chunx::length_predicate, std::vector<int>::iterator,
+                       std::basic_string_view<int>>;
+  auto tokenizer = tokenizer_type{input.begin(), input.end(), predicate};
+  std::copy(tokenizer.begin(), tokenizer.end(), std::back_inserter(results));
+  EXPECT_EQ(expected, results);
+  auto join_range = chunx::join_range(results.begin(), results.end());
+  EXPECT_TRUE(std::equal(input.begin(), input.end(), join_range.begin()));
 }
 
 INSTANTIATE_TEST_SUITE_P(
