@@ -11,16 +11,20 @@ option(BUILD_TESTING "Build unit tests" ON)
 find_package(Boost REQUIRED)
 
 add_library(libchunx
-        chunx/length_predicate.cpp
-        chunx/length_predicate.h
+        chunx/fixed_length_policy.cpp
+        chunx/fixed_length_policy.h
         #chunx/OutputStreamBuffer.cpp
         #chunx/OutputStreamBuffer.h
         #chunx/InputStreamBuffer.cpp
         #chunx/InputStreamBuffer.h
         chunx/detail/join_iterator.cpp
         chunx/detail/join_iterator.h
-        chunx/join_range.cpp
-        chunx/join_range.h)
+        chunx/join.cpp
+        chunx/join.h
+        chunx/split.cpp
+        chunx/split.h
+        chunx/policy.cpp
+        chunx/policy.h)
 
 set_target_properties(libchunx PROPERTIES OUTPUT_NAME chunx)
 
@@ -40,10 +44,10 @@ if (BUILD_TESTING)
     find_package(GTest MODULE REQUIRED)
     add_executable(ChunxTest
             chunx/test/main.cpp
-            chunx/test/length_predicate_test.cpp
+            chunx/test/fixed_length_policy_test.cpp
             #chunx/test/OutputStream.cpp
             #chunx/test/InputStream.cpp)
-            )
+            chunx/test/join_test.cpp)
     target_link_libraries(ChunxTest PRIVATE GTest::GTest GTest::Main libchunx)
     gtest_discover_tests(ChunxTest)
     if (MSVC)

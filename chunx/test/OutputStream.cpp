@@ -1,5 +1,5 @@
 #include <chunx/OutputStreamBuffer.h>
-#include <chunx/length_predicate.h>
+#include <chunx/fixed_length_policy.h>
 #include <gtest/gtest.h>
 
 namespace chunx {
