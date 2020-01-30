@@ -10,74 +10,75 @@ class join_iterator
     : public boost::iterator_facade<
           join_iterator<InputIt>,
           typename std::iterator_traits<InputIt>::value_type::value_type,
-          typename std::iterator_traits<InputIt>::iterator_category,
+          std::forward_iterator_tag,
           typename std::iterator_traits<InputIt>::value_type::const_reference> {
  public:
   using base_type = boost::iterator_facade<
       join_iterator<InputIt>,
       typename std::iterator_traits<InputIt>::value_type::value_type,
-      typename std::iterator_traits<InputIt>::iterator_category,
+      std::forward_iterator_tag,
       typename std::iterator_traits<InputIt>::value_type::const_reference>;
 
   using difference_type = typename base_type::difference_type;
   using reference = typename base_type::reference;
-  using iterator = typename std::iterator_traits<InputIt>::value_type::iterator;
+  using iterator =
+      typename std::iterator_traits<InputIt>::value_type::const_iterator;
 
-  join_iterator() = default;
+  join_iterator();
   join_iterator(InputIt first, InputIt last);
-  join_iterator(InputIt first, InputIt last, InputIt current, iterator value);
+  join_iterator(InputIt first, InputIt last, InputIt current,
+                std::size_t offset);
 
   void increment();
-  void decrement();
   void advance(difference_type offset);
   bool equal(const join_iterator<InputIt>& other) const;
   reference dereference() const;
-  difference_type distance_to(const join_iterator& other) const;
 
  private:
-  difference_type distance_from(const join_iterator& other) const;
+  using container_type = typename std::iterator_traits<InputIt>::value_type;
   InputIt first_;
   InputIt last_;
   InputIt current_;
-  iterator it_;
-  difference_type offset_;
+  container_type value_;
+  std::size_t offset_;
 };
 
 template <typename InputIt>
+join_iterator<InputIt>::join_iterator() : offset_(0) {}
+
+template <typename InputIt>
 join_iterator<InputIt>::join_iterator(InputIt first, InputIt last)
-    : join_iterator(first, last, first,
-                    first == last ? iterator{} : std::begin(*first)) {}
+    : first_(std::move(first)),
+      last_(std::move(last)),
+      current_(first_),
+      value_(current_ == last_ ? container_type{} : *current_),
+      offset_(0) {}
 
 template <typename InputIt>
 join_iterator<InputIt>::join_iterator(InputIt first, InputIt last,
-                                      InputIt current, iterator value)
+                                      InputIt current, std::size_t offset)
     : first_(std::move(first)),
       last_(std::move(last)),
       current_(std::move(current)),
-      it_(std::move(value)),
-      offset_(first_ == last_ ||
-                      (current_ == first_ && it_ == std::begin(*first_))
-                  ? 0
-                  : distance_from(join_iterator(first, last))) {}
+      value_(current_ == last_ ? container_type{} : *current_),
+      offset_(offset) {}
 
 template <typename InputIt>
 void join_iterator<InputIt>::increment() {
-  ++offset_;
-  if (++it_ == std::end(*current_) && ++current_ != last_)
-    it_ = std::begin(*current_);
-}
-
-template <typename InputIt>
-void join_iterator<InputIt>::decrement() {
-  --offset_;
-  it_ = it_ == std::begin(*current_) ? std::next(std::end(*--current_), -1)
-                                     : --it_;
+  if (++offset_ == std::size(value_)) {
+    if (++current_ != last_) {
+      value_ = *current_;
+      offset_ = 0;
+    } else {
+      *this = join_iterator{};
+    }
+  }
 }
 
 template <typename InputIt>
 typename join_iterator<InputIt>::reference join_iterator<InputIt>::dereference()
     const {
-  return *it_;
+  return value_[offset_];
 }
 
 template <typename InputIt>
@@ -86,34 +87,12 @@ void join_iterator<InputIt>::advance(
   for (auto i = offset; i > 0; --i) {
     increment();
   }
-  for (auto i = offset; i < 0; ++i) {
-    decrement();
-  }
-}
-
-template <typename InputIt>
-typename join_iterator<InputIt>::difference_type
-join_iterator<InputIt>::distance_to(const join_iterator<InputIt>& other) const {
-  return other.offset_ - offset_;
-}
-
-template <typename InputIt>
-typename join_iterator<InputIt>::difference_type
-join_iterator<InputIt>::distance_from(
-    const join_iterator<InputIt>& other) const {
-  difference_type result = 0;
-  for (auto i = other.first_; i != current_; ++i) {
-    for (auto j = std::begin(*i); j != it_ && j != std::end(*i); ++j) {
-      ++result;
-    }
-  }
-  return result;
 }
 
 template <typename InputIt>
 bool join_iterator<InputIt>::equal(const join_iterator<InputIt>& other) const {
   return first_ == other.first_ && last_ == other.last_ &&
-         current_ == other.current_ && it_ == other.it_;
+         current_ == other.current_ && offset_ == other.offset_;
 }
 
 }  // namespace detail
