@@ -1,5 +1,7 @@
+#include <chunx/fixed_length_policy.h>
 #include <chunx/join.h>
 #include <chunx/split.h>
+#include <chunx/variable_length_policy.h>
 #include <gtest/gtest.h>
 
 #include <algorithm>
@@ -12,7 +14,7 @@ class length_predicate_test
           std::tuple<std::string, std::shared_ptr<chunx::policy<>>,
                      std::vector<std::string>>> {};
 
-TEST_P(length_predicate_test, fixed_length_policy) {
+TEST_P(length_predicate_test, length_policy) {
   auto [input, policy, expected] = GetParam();
   auto results = std::vector<std::string>{};
   auto splitter = chunx::split(input.begin(), input.end(), *policy);
@@ -43,6 +45,9 @@ INSTANTIATE_TEST_SUITE_P(
                    std::vector{"12"s, "34"s, "56"s, "78"s, "9"s}},
         std::tuple{"123456789"s,
                    std::make_shared<chunx::fixed_length_policy<3>>(),
+                   std::vector{"123"s, "456"s, "789"s}},
+        std::tuple{"123456789"s,
+                   std::make_shared<chunx::variable_length_policy<>>(3),
                    std::vector{"123"s, "456"s, "789"s}},
         std::tuple{"123456789"s,
                    std::make_shared<chunx::fixed_length_policy<4>>(),

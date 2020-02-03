@@ -24,7 +24,11 @@ add_library(libchunx
         chunx/split.cpp
         chunx/split.h
         chunx/policy.cpp
-        chunx/policy.h)
+        chunx/policy.h
+        chunx/variable_length_policy.cpp
+        chunx/variable_length_policy.h
+        chunx/length_policy.cpp
+        chunx/length_policy.h)
 
 set_target_properties(libchunx PROPERTIES OUTPUT_NAME chunx)
 
@@ -44,7 +48,7 @@ if (BUILD_TESTING)
     find_package(GTest MODULE REQUIRED)
     add_executable(ChunxTest
             chunx/test/main.cpp
-            chunx/test/fixed_length_policy_test.cpp
+            chunx/test/length_policy_test.cpp
             #chunx/test/OutputStream.cpp
             #chunx/test/InputStream.cpp)
             chunx/test/join_test.cpp)
