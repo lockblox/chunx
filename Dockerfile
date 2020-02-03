@@ -7,6 +7,7 @@ RUN cd ${VCPKG_ROOT} \
  && git pull lockblox master \
  && rm -rf downloads \
  && ./vcpkg install boost-iterator \
- && ./vcpkg install boost-tokenizer
+ && ./vcpkg install boost-tokenizer \
+ && ./vcpkg install boost-range
 
 COPY . /root/src
