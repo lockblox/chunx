@@ -1,8 +1,7 @@
 #pragma once
 #include <boost/iterator/iterator_facade.hpp>
 
-namespace chunx {
-namespace detail {
+namespace chunx::detail {
 
 /** Converts a range of iterators-to-containers, to an iterator to values */
 template <typename InputIt>
@@ -24,54 +23,42 @@ class join_iterator
   using iterator =
       typename std::iterator_traits<InputIt>::value_type::const_iterator;
 
-  join_iterator();
   join_iterator(InputIt first, InputIt last);
-  join_iterator(InputIt first, InputIt last, InputIt current,
-                std::size_t offset);
 
   void increment();
   void advance(difference_type offset);
-  bool equal(const join_iterator<InputIt>& other) const;
+  bool equal(const join_iterator<InputIt> &other) const;
   reference dereference() const;
 
  private:
   using container_type = typename std::iterator_traits<InputIt>::value_type;
-  InputIt first_;
-  InputIt last_;
   InputIt current_;
+  InputIt last_;
   container_type value_;
   std::size_t offset_;
 };
 
 template <typename InputIt>
-join_iterator<InputIt>::join_iterator() : offset_(0) {}
-
-template <typename InputIt>
 join_iterator<InputIt>::join_iterator(InputIt first, InputIt last)
-    : first_(std::move(first)),
+    : current_(std::move(first)),
       last_(std::move(last)),
-      current_(first_),
       value_(current_ == last_ ? container_type{} : *current_),
-      offset_(0) {}
-
-template <typename InputIt>
-join_iterator<InputIt>::join_iterator(InputIt first, InputIt last,
-                                      InputIt current, std::size_t offset)
-    : first_(std::move(first)),
-      last_(std::move(last)),
-      current_(std::move(current)),
-      value_(current_ == last_ ? container_type{} : *current_),
-      offset_(offset) {}
+      offset_(0) {
+  while (std::size(value_) == 0 && current_ != last_) {
+    increment();
+  }
+}
 
 template <typename InputIt>
 void join_iterator<InputIt>::increment() {
-  if (++offset_ == std::size(value_)) {
-    if (++current_ != last_) {
-      value_ = *current_;
-      offset_ = 0;
-    } else {
-      *this = join_iterator{};
-    }
+  auto size = std::size(value_);
+  if (offset_ < size) {
+    ++offset_;
+  }
+  while (offset_ == std::size(value_) && current_ != last_) {
+    ++current_;
+    value_ = current_ == last_ ? container_type{} : *current_;
+    offset_ = 0;
   }
 }
 
@@ -90,10 +77,9 @@ void join_iterator<InputIt>::advance(
 }
 
 template <typename InputIt>
-bool join_iterator<InputIt>::equal(const join_iterator<InputIt>& other) const {
-  return first_ == other.first_ && last_ == other.last_ &&
-         current_ == other.current_ && offset_ == other.offset_;
+bool join_iterator<InputIt>::equal(const join_iterator<InputIt> &other) const {
+  return current_ == other.current_ && last_ == other.last_ &&
+         offset_ == other.offset_;
 }
 
-}  // namespace detail
 }  // namespace chunx

@@ -8,18 +8,25 @@
 
 namespace test {
 
+using namespace std::string_literals;
+
 struct reverse {
   std::string operator()(const std::string& input) const {
-    auto output = input;
-    std::reverse(output.begin(), output.end());
+    std::string output;
+    if (!input.empty()) {
+      output = input;
+      std::reverse(output.begin(), output.end());
+    }
     return output;
   }
 };
 
-TEST(join_test, transform) {
+class join_test : public testing::TestWithParam<
+                      std::pair<std::vector<std::string>, std::string>> {};
+
+TEST_P(join_test, transform) {
   using namespace std::string_literals;
-  auto input = std::vector{"em"s, "esrever"s};
-  auto expected = std::string{"reverseme"};
+  auto [input, expected] = GetParam();
   using transform_iterator =
       boost::transform_iterator<reverse,
                                 std::vector<std::string>::reverse_iterator>;
@@ -31,4 +38,10 @@ TEST(join_test, transform) {
   EXPECT_THAT(result, ::testing::Eq(expected));
 }
 
+INSTANTIATE_TEST_SUITE_P(
+    chunker, join_test,
+    testing::Values(std::pair{std::vector{""s, "em"s, ""s, "esrever"s, ""s},
+                              "reverseme"s},
+                    std::pair{std::vector{"em"s, "esrever"s}, "reverseme"s},
+                    std::pair{std::vector<std::string>{}, std::string{}}));
 }  // namespace test
