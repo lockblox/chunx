@@ -7,6 +7,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 17)
 
 option(BUILD_TESTING "Build unit tests" ON)
+option(BUILD_COVERAGE "Build with coverage" OFF)
 
 find_package(Boost REQUIRED)
 
@@ -40,8 +41,17 @@ target_include_directories(libchunx PUBLIC
 if (MSVC)
     target_compile_options(libchunx PRIVATE /W4 /WX /MP)
 else ()
-    target_compile_options(libchunx PRIVATE -Wall -Wextra -pedantic -Werror)
+    if (BUILD_COVERAGE)
+        if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+            set(COVERAGE_FLAGS "--coverage")
+        else ()
+            set(COVERAGE_FLAGS "-fprofile-arcs -ftest-coverage")
+        endif ()
+    endif ()
+    target_compile_options(libchunx PRIVATE -Wall -Wextra -pedantic -Werror
+            ${COVERAGE_FLAGS})
 endif ()
+
 
 if (BUILD_TESTING)
     enable_testing()
@@ -57,7 +67,9 @@ if (BUILD_TESTING)
     if (MSVC)
         target_compile_options(ChunxTest PRIVATE /W4 /WX /MP)
     else ()
-        target_compile_options(ChunxTest PRIVATE -Wall -Wextra -pedantic -Werror)
+        target_compile_options(ChunxTest PRIVATE ${COVERAGE_FLAGS}
+                -Wall -Wextra -pedantic -Werror)
+        target_link_libraries(ChunxTest PRIVATE ${COVERAGE_FLAGS})
     endif ()
 endif ()
 
