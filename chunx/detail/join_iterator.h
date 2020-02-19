@@ -82,4 +82,4 @@ bool join_iterator<InputIt>::equal(const join_iterator<InputIt> &other) const {
          offset_ == other.offset_;
 }
 
-}  // namespace chunx
+}  // namespace chunx::detail
