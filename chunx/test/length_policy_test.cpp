@@ -2,6 +2,7 @@
 #include <chunx/join.h>
 #include <chunx/split.h>
 #include <chunx/variable_length_policy.h>
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include <algorithm>
@@ -16,10 +17,9 @@ class length_predicate_test
 
 TEST_P(length_predicate_test, length_policy) {
   auto [input, policy, expected] = GetParam();
-  auto results = std::vector<std::string>{};
   auto splitter = chunx::split(input.begin(), input.end(), *policy);
-  std::copy(splitter.begin(), splitter.end(), std::back_inserter(results));
-  EXPECT_EQ(expected, results);
+  auto result = std::vector<std::string>{splitter.begin(), splitter.end()};
+  EXPECT_THAT(result, ::testing::Eq(expected));
 }
 
 TEST(fixed_length_policy, string_view) {
@@ -35,6 +35,29 @@ TEST(fixed_length_policy, string_view) {
   EXPECT_EQ(expected, results);
   auto join_range = chunx::join(results.begin(), results.end());
   EXPECT_TRUE(std::equal(input.begin(), input.end(), join_range.begin()));
+}
+
+TEST(length_policy, op) {
+  auto input = std::string{};
+  input.resize(3);
+  auto predicate = chunx::fixed_length_policy<1>{};
+  std::string output;
+  auto first = input.begin();
+
+  EXPECT_TRUE(predicate(first, input.end(), output));
+  EXPECT_EQ(1, output.size());
+  output.clear();
+
+  EXPECT_TRUE(predicate(first, input.end(), output));
+  EXPECT_EQ(1, output.size());
+  output.clear();
+
+  EXPECT_TRUE(predicate(first, input.end(), output));
+  EXPECT_EQ(1, output.size());
+  output.clear();
+
+  EXPECT_FALSE(predicate(first, input.end(), output));
+  EXPECT_EQ(0, output.size());
 }
 
 INSTANTIATE_TEST_SUITE_P(
@@ -54,6 +77,12 @@ INSTANTIATE_TEST_SUITE_P(
                    std::vector{"1234"s, "5678"s, "9"s}},
         std::tuple{"123456789"s,
                    std::make_shared<chunx::fixed_length_policy<200>>(),
-                   std::vector{"123456789"s}}));
+                   std::vector{"123456789"s}},
+        std::tuple{std::string{'\0', '\0', '\0'},
+                   std::make_shared<chunx::fixed_length_policy<1>>(),
+                   std::vector{"\0"s, "\0"s, "\0"s}},
+        std::tuple{std::string{'\0', '\0', '\0', '\0', '\0', '\0'},
+                   std::make_shared<chunx::fixed_length_policy<2>>(),
+                   std::vector{"\0\0"s, "\0\0"s, "\0\0"s}}));
 
 }  // namespace test
