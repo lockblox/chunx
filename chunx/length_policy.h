@@ -19,7 +19,7 @@ class length_policy : public policy<InputIt, Container> {
     if constexpr (std::is_same_v<Container, view_type>) {
       token = view_type{&*first, chunk_size};
     } else {
-      token = Container{first, first + chunk_size};
+      token = Container{first, std::next(first, chunk_size)};
     }
     std::advance(first, chunk_size);
     return chunk_size > 0;
