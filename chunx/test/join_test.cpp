@@ -11,7 +11,7 @@ namespace test {
 using namespace std::string_literals;
 
 struct reverse {
-  std::string operator()(const std::string& input) const {
+  std::string operator()(std::string_view input) const {
     std::string output;
     if (!input.empty()) {
       output = input;
@@ -24,6 +24,7 @@ struct reverse {
 class join_test : public testing::TestWithParam<
                       std::pair<std::vector<std::string>, std::string>> {};
 
+// NOLINTNEXTLINE
 TEST_P(join_test, transform) {
   using namespace std::string_literals;
   auto [input, expected] = GetParam();
@@ -38,6 +39,7 @@ TEST_P(join_test, transform) {
   EXPECT_THAT(result, ::testing::Eq(expected));
 }
 
+// NOLINTNEXTLINE
 INSTANTIATE_TEST_SUITE_P(
     chunker, join_test,
     testing::Values(std::pair{std::vector{""s, "em"s, ""s, "esrever"s, ""s},

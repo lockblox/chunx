@@ -15,6 +15,7 @@ class length_predicate_test
           std::tuple<std::string, std::shared_ptr<chunx::policy<>>,
                      std::vector<std::string>>> {};
 
+// NOLINTNEXTLINE
 TEST_P(length_predicate_test, length_policy) {
   auto [input, policy, expected] = GetParam();
   auto splitter = chunx::split(input.begin(), input.end(), *policy);
@@ -22,12 +23,14 @@ TEST_P(length_predicate_test, length_policy) {
   EXPECT_THAT(result, ::testing::Eq(expected));
 }
 
+// NOLINTNEXTLINE
 TEST(fixed_length_policy, string_view) {
   using string_view = std::basic_string_view<int>;
+  // NOLINTNEXTLINE (readability-magic-numbers)
   auto input = std::vector<int>{1, 2, 3, 4, 5, 6};
   auto results = std::vector<string_view>{};
   auto expected = std::vector<string_view>{string_view{input.data(), 4},
-                                           string_view{input.data() + 4, 2}};
+                                           string_view{&input[4], 2}};
   auto predicate = chunx::fixed_length_policy<4, std::vector<int>::iterator,
                                               std::basic_string_view<int>>{};
   auto splitter = chunx::split(input.begin(), input.end(), predicate);
@@ -37,6 +40,7 @@ TEST(fixed_length_policy, string_view) {
   EXPECT_TRUE(std::equal(input.begin(), input.end(), join_range.begin()));
 }
 
+// NOLINTNEXTLINE
 TEST(length_policy, op) {
   auto input = std::string{};
   input.resize(3);
@@ -60,6 +64,7 @@ TEST(length_policy, op) {
   EXPECT_EQ(0, output.size());
 }
 
+// NOLINTNEXTLINE
 INSTANTIATE_TEST_SUITE_P(
     chunker, length_predicate_test,
     testing::Values(
