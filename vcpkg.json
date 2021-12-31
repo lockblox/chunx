@@ -1,0 +1,10 @@
+{
+    "name": "chunx",
+    "version-string": "0.1.0",
+    "dependencies": [
+      "boost-iterator",
+      "boost-tokenizer",
+      "boost-range",
+      "gtest"
+    ]
+  }
