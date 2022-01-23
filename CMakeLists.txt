@@ -14,10 +14,10 @@ find_package(Boost REQUIRED)
 add_library(libchunx
         chunx/fixed_length_policy.cpp
         chunx/fixed_length_policy.h
-        #chunx/OutputStreamBuffer.cpp
-        #chunx/OutputStreamBuffer.h
-        #chunx/InputStreamBuffer.cpp
-        #chunx/InputStreamBuffer.h
+        chunx/ostreambuf.cpp
+        chunx/ostreambuf.h
+        chunx/istreambuf.cpp
+        chunx/istreambuf.h
         chunx/detail/join_iterator.cpp
         chunx/detail/join_iterator.h
         chunx/join.cpp
@@ -57,11 +57,11 @@ if (BUILD_TESTING)
     enable_testing()
     find_package(GTest MODULE REQUIRED)
     add_executable(ChunxTest
-            chunx/test/main.cpp
-            chunx/test/length_policy_test.cpp
+            chunx/test_main.cpp
+            chunx/length_policy_test.cpp
             #chunx/test/OutputStream.cpp
             #chunx/test/InputStream.cpp)
-            chunx/test/join_test.cpp)
+            chunx/join_test.cpp)
     target_link_libraries(ChunxTest PRIVATE GTest::GTest GTest::Main libchunx)
     gtest_discover_tests(ChunxTest)
     if (MSVC)
